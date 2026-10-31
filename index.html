@@ -1,0 +1,2089 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Campus Tracker - Student SaaS Dashboard</title>
+  <style>
+    :root {
+      /* Palette: Navy Blue, Royal Blue, Purple, Subtle Teal */
+      --navy-dark: #0B132B;
+      --navy-sidebar: #0F172A;
+      --navy-sidebar-hover: #1E293B;
+      --royal-blue: #2563EB;
+      --royal-blue-hover: #1D4ED8;
+      --royal-blue-light: #EFF6FF;
+      --purple-primary: #7C3AED;
+      --purple-light: #FAF5FF;
+      --teal-accent: #0D9488;
+      --teal-light: #F0FDFA;
+
+      /* Surfaces & Clean Light Backgrounds */
+      --bg-page: #F8FAFC;
+      --bg-card: #FFFFFF;
+      --bg-card-subtle: #F1F5F9;
+      --border-card: #E2E8F0;
+      --border-focus: #2563EB;
+
+      /* Typography */
+      --text-main: #0F172A;
+      --text-secondary: #334155;
+      --text-muted: #64748B;
+      --text-subtle: #94A3B8;
+
+      /* Soft Category Colors (Strict Specifications) */
+      /* Events: Blue */
+      --cat-event-bg: #EFF6FF;
+      --cat-event-text: #1D4ED8;
+      --cat-event-border: #BFDBFE;
+      --cat-event-accent: #3B82F6;
+
+      /* Assignments: Purple */
+      --cat-assignment-bg: #FAF5FF;
+      --cat-assignment-text: #6D28D9;
+      --cat-assignment-border: #E9D5FF;
+      --cat-assignment-accent: #7C3AED;
+
+      /* Examinations: Orange */
+      --cat-exam-bg: #FFF7ED;
+      --cat-exam-text: #C2410C;
+      --cat-exam-border: #FED7AA;
+      --cat-exam-accent: #EA580C;
+
+      /* Workshops: Teal */
+      --cat-workshop-bg: #F0FDFA;
+      --cat-workshop-text: #0F766E;
+      --cat-workshop-border: #99F6E4;
+      --cat-workshop-accent: #0D9488;
+
+      /* Registrations: Pink */
+      --cat-reg-bg: #FDF2F8;
+      --cat-reg-text: #BE185D;
+      --cat-reg-border: #FBCFE8;
+      --cat-reg-accent: #DB2777;
+
+      /* Venue Change: Amber/Red Notice */
+      --cat-venue-bg: #FEF2F2;
+      --cat-venue-text: #B91C1C;
+      --cat-venue-border: #FECACA;
+      --cat-venue-accent: #DC2626;
+
+      /* Completed Tasks: Green */
+      --cat-completed-bg: #F0FDF4;
+      --cat-completed-text: #15803D;
+      --cat-completed-border: #BBF7D0;
+      --cat-completed-accent: #16A34A;
+
+      /* Urgency Accents */
+      --urgency-today: #DC2626;
+      --urgency-week: #D97706;
+      --urgency-upcoming: #0284C7;
+
+      /* Shadows */
+      --shadow-sm: 0 1px 3px 0 rgba(15, 23, 42, 0.05);
+      --shadow-card: 0 4px 6px -1px rgba(15, 23, 42, 0.06), 0 2px 4px -2px rgba(15, 23, 42, 0.03);
+      --shadow-hover: 0 12px 24px -4px rgba(15, 23, 42, 0.1), 0 4px 8px -2px rgba(15, 23, 42, 0.05);
+      --shadow-modal: 0 25px 50px -12px rgba(15, 23, 42, 0.25);
+
+      /* Radii */
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --radius-full: 9999px;
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: var(--bg-page);
+      color: var(--text-main);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      line-height: 1.5;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Overall SaaS Layout */
+    .dashboard-layout {
+      display: flex;
+      min-height: 100vh;
+      background: var(--bg-page);
+    }
+
+    .visually-hidden {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip: rect(0 0 0 0);
+    }
+
+    /* ==========================================================================
+       Left Sidebar Navigation (SaaS Style with Subtle Navy Gradient)
+       ========================================================================== */
+    .sidebar {
+      width: 270px;
+      background: linear-gradient(180deg, #0B132B 0%, #151E36 50%, #0F172A 100%);
+      color: #F8FAFC;
+      display: flex;
+      flex-direction: column;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      flex-shrink: 0;
+      z-index: 40;
+      border-right: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 4px 0 20px rgba(0, 0, 0, 0.08);
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .sidebar-brand {
+      padding: 24px 20px 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .brand-logo-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: var(--radius-md);
+      background: linear-gradient(135deg, #2563EB 0%, #7C3AED 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.35rem;
+      color: #FFFFFF;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
+      flex-shrink: 0;
+    }
+
+    .brand-info {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    .brand-title {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: #FFFFFF;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+    }
+
+    .brand-badge {
+      font-size: 0.725rem;
+      color: #94A3B8;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .sidebar-nav {
+      flex: 1;
+      padding: 18px 14px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      scrollbar-width: none;
+    }
+
+    .sidebar-nav::-webkit-scrollbar {
+      display: none;
+    }
+
+    .nav-section-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #64748B;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 14px 12px 6px;
+    }
+
+    .sidebar-nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 14px;
+      border-radius: var(--radius-md);
+      color: #CBD5E1;
+      font-size: 0.875rem;
+      font-weight: 600;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      text-align: left;
+      text-decoration: none;
+      transition: all 0.15s ease;
+      width: 100%;
+      user-select: none;
+    }
+
+    .sidebar-nav-item:hover {
+      background: rgba(255, 255, 255, 0.06);
+      color: #FFFFFF;
+    }
+
+    .sidebar-nav-item.active {
+      background: linear-gradient(135deg, rgba(37, 99, 235, 0.3) 0%, rgba(124, 58, 237, 0.35) 100%);
+      color: #FFFFFF;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+      border-left: 3px solid #60A5FA;
+    }
+
+    .nav-icon {
+      font-size: 1.05rem;
+      line-height: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 20px;
+    }
+
+    .nav-text {
+      flex: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .nav-pill {
+      font-size: 0.725rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: var(--radius-full);
+      background: rgba(255, 255, 255, 0.1);
+      color: #E2E8F0;
+    }
+
+    .nav-pill.pill-purple { background: rgba(124, 58, 237, 0.3); color: #DDD6FE; }
+    .nav-pill.pill-orange { background: rgba(234, 88, 12, 0.3); color: #FED7AA; }
+    .nav-pill.pill-blue   { background: rgba(37, 99, 235, 0.3); color: #BFDBFE; }
+    .nav-pill.pill-teal   { background: rgba(13, 148, 136, 0.3); color: #99F6E4; }
+    .nav-pill.pill-pink   { background: rgba(219, 39, 119, 0.3); color: #FBCFE8; }
+    .nav-pill.pill-amber  { background: rgba(217, 119, 6, 0.3); color: #FDE68A; }
+
+    .nav-badge-new {
+      font-size: 0.65rem;
+      font-weight: 800;
+      padding: 2px 6px;
+      border-radius: var(--radius-sm);
+      background: linear-gradient(135deg, #0D9488 0%, #2563EB 100%);
+      color: #FFFFFF;
+      letter-spacing: 0.05em;
+    }
+
+    .sidebar-footer {
+      padding: 16px 14px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(0, 0, 0, 0.15);
+    }
+
+    .user-mini-card {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 10px;
+      border-radius: var(--radius-md);
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .user-avatar {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: #1E293B;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+    }
+
+    .user-meta {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    .user-name {
+      font-size: 0.825rem;
+      font-weight: 700;
+      color: #F8FAFC;
+    }
+
+    .user-status {
+      font-size: 0.725rem;
+      color: #94A3B8;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .status-dot-active {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #10B981;
+      box-shadow: 0 0 6px rgba(16, 185, 129, 0.6);
+      display: inline-block;
+    }
+
+    /* Sidebar Mobile Backdrop */
+    .sidebar-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.5);
+      backdrop-filter: blur(3px);
+      z-index: 35;
+    }
+
+    /* ==========================================================================
+       Main Dashboard Area (Clean SaaS Layout)
+       ========================================================================== */
+    .main-wrapper {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      background: var(--bg-page);
+    }
+
+    /* Topbar */
+    .dashboard-topbar {
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border-card);
+      padding: 16px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03);
+    }
+
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .mobile-sidebar-toggle {
+      display: none;
+      background: transparent;
+      border: 1px solid var(--border-card);
+      border-radius: var(--radius-sm);
+      color: var(--text-main);
+      font-size: 1.25rem;
+      width: 38px;
+      height: 38px;
+      cursor: pointer;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .page-title {
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+    }
+
+    .page-subtitle {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .topbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* Attractive SaaS Buttons with Consistent Palette */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      min-height: 40px;
+      padding: 0 18px;
+      border-radius: var(--radius-md);
+      font-family: inherit;
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.15s ease;
+      text-decoration: none;
+      white-space: nowrap;
+      user-select: none;
+    }
+
+    .btn:active {
+      transform: scale(0.98);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #2563EB 0%, #4F46E5 100%);
+      color: #FFFFFF;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+    }
+
+    .btn-primary:hover {
+      background: linear-gradient(135deg, #1D4ED8 0%, #4338CA 100%);
+      box-shadow: 0 6px 16px rgba(37, 99, 235, 0.35);
+      transform: translateY(-1px);
+    }
+
+    .btn-ghost {
+      background: #FFFFFF;
+      color: var(--text-secondary);
+      border: 1px solid var(--border-card);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .btn-ghost:hover {
+      background: #F1F5F9;
+      color: var(--text-main);
+      border-color: #CBD5E1;
+    }
+
+    .btn-ai-header {
+      background: linear-gradient(135deg, #0D9488 0%, #0284C7 100%);
+      color: #FFFFFF;
+      box-shadow: 0 4px 12px rgba(13, 148, 136, 0.25);
+    }
+
+    .btn-ai-header:hover {
+      background: linear-gradient(135deg, #0F766E 0%, #0369A1 100%);
+      box-shadow: 0 6px 16px rgba(13, 148, 136, 0.35);
+      transform: translateY(-1px);
+    }
+
+    .btn-danger {
+      background: #FFF1F2;
+      color: #E11D48;
+      border: 1px solid #FECDD3;
+    }
+
+    .btn-danger:hover {
+      background: #FFE4E6;
+      color: #BE123C;
+      border-color: #FDA4AF;
+    }
+
+    /* Card Action Buttons */
+    .btn-done-action {
+      background: var(--cat-completed-bg);
+      color: var(--cat-completed-text);
+      border: 1px solid var(--cat-completed-border);
+    }
+
+    .btn-done-action:hover {
+      background: #DCFCE7;
+      color: #166534;
+    }
+
+    /* Main Container */
+    .dashboard-main {
+      padding: 24px 32px 56px;
+      max-width: 1100px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    /* ==========================================================================
+       Visual Statistics Cards (KPI Dashboard Grid)
+       ========================================================================== */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .kpi-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border-card);
+      border-radius: var(--radius-lg);
+      padding: 16px 18px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      box-shadow: var(--shadow-sm);
+      transition: all 0.2s ease;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      user-select: none;
+    }
+
+    .kpi-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: transparent;
+      transition: background 0.2s ease;
+    }
+
+    .kpi-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-card);
+    }
+
+    .kpi-card.kpi-urgent:hover::before { background: var(--urgency-today); }
+    .kpi-card.kpi-purple:hover::before { background: var(--purple-primary); }
+    .kpi-card.kpi-orange:hover::before { background: var(--cat-exam-accent); }
+    .kpi-card.kpi-teal:hover::before { background: var(--teal-accent); }
+    .kpi-card.kpi-green:hover::before { background: var(--cat-completed-accent); }
+
+    .kpi-icon-wrap {
+      width: 44px;
+      height: 44px;
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      flex-shrink: 0;
+    }
+
+    .icon-urgent { background: #FEF2F2; color: #DC2626; border: 1px solid #FECACA; }
+    .icon-purple { background: var(--cat-assignment-bg); color: var(--cat-assignment-text); border: 1px solid var(--cat-assignment-border); }
+    .icon-orange { background: var(--cat-exam-bg); color: var(--cat-exam-text); border: 1px solid var(--cat-exam-border); }
+    .icon-teal   { background: var(--cat-workshop-bg); color: var(--cat-workshop-text); border: 1px solid var(--cat-workshop-border); }
+    .icon-green  { background: var(--cat-completed-bg); color: var(--cat-completed-text); border: 1px solid var(--cat-completed-border); }
+
+    .kpi-content {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    .kpi-label {
+      font-size: 0.775rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .kpi-value {
+      font-size: 1.45rem;
+      font-weight: 800;
+      color: var(--text-main);
+      line-height: 1.15;
+    }
+
+    /* ==========================================================================
+       Paste Message Box (WhatsApp Quick Add)
+       ========================================================================== */
+    .paste-box-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border-card);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+      padding: 16px 20px;
+      margin-bottom: 24px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .paste-box-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      background: linear-gradient(90deg, #2563EB 0%, #7C3AED 50%, #0D9488 100%);
+    }
+
+    .paste-box-header {
+      margin-bottom: 8px;
+    }
+
+    .paste-title-label {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--text-secondary);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .paste-box-body {
+      display: flex;
+      gap: 12px;
+      align-items: flex-end;
+    }
+
+    textarea#paste-input {
+      flex: 1;
+      width: 100%;
+      padding: 10px 14px;
+      font: inherit;
+      font-size: 0.925rem;
+      color: var(--text-main);
+      background: #F8FAFC;
+      border: 1px solid #E2E8F0;
+      border-radius: var(--radius-md);
+      resize: vertical;
+      min-height: 48px;
+      line-height: 1.45;
+      transition: all 0.15s ease;
+    }
+
+    textarea#paste-input::placeholder {
+      color: var(--text-subtle);
+      font-size: 0.875rem;
+    }
+
+    textarea#paste-input:focus {
+      outline: none;
+      border-color: var(--royal-blue);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+      background: #FFFFFF;
+    }
+
+    .btn-autofill {
+      height: 48px;
+      padding: 0 20px;
+    }
+
+    /* ==========================================================================
+       Filter Chips Navigation
+       ========================================================================== */
+    .filters-row-wrap {
+      margin-bottom: 18px;
+    }
+
+    .filters {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 6px;
+      scrollbar-width: thin;
+    }
+
+    .chip {
+      flex: none;
+      min-height: 38px;
+      padding: 0 16px;
+      background: #FFFFFF;
+      color: var(--text-secondary);
+      border: 1px solid var(--border-card);
+      border-radius: var(--radius-full);
+      font: inherit;
+      font-size: 0.825rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .chip:hover {
+      background: #F1F5F9;
+      color: var(--text-main);
+      border-color: #CBD5E1;
+    }
+
+    .chip.active {
+      background: linear-gradient(135deg, #2563EB 0%, #4F46E5 100%);
+      border-color: transparent;
+      color: #FFFFFF;
+      box-shadow: 0 4px 10px rgba(37, 99, 235, 0.25);
+    }
+
+    /* ==========================================================================
+       Summary Status Line
+       ========================================================================== */
+    .summary-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border-card);
+      border-radius: var(--radius-md);
+      padding: 12px 18px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 28px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .summary-icon {
+      font-size: 1.1rem;
+    }
+
+    .summary {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text-secondary);
+      margin: 0;
+    }
+
+    /* ==========================================================================
+       Timeline Sections (Today, This Week, Upcoming)
+       ========================================================================== */
+    .sections-container {
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+    }
+
+    .group {
+      margin-top: 0;
+    }
+
+    .section-heading-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+
+    .section-title-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .section-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .dot-today {
+      background: var(--urgency-today);
+      box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.2);
+    }
+
+    .dot-week {
+      background: var(--urgency-week);
+      box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.2);
+    }
+
+    .dot-later {
+      background: var(--urgency-upcoming);
+      box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.2);
+    }
+
+    .group h2 {
+      margin: 0;
+      padding: 0;
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: var(--text-main);
+      border-left: none;
+    }
+
+    .section-count-pill {
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: var(--radius-full);
+    }
+
+    .pill-today { background: #FEE2E2; color: #DC2626; border: 1px solid #FECACA; }
+    .pill-week  { background: #FEF3C7; color: #D97706; border: 1px solid #FDE68A; }
+    .pill-later { background: #E0F2FE; color: #0284C7; border: 1px solid #BAE6FD; }
+
+    .list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .empty {
+      margin: 0;
+      padding: 20px;
+      text-align: center;
+      color: var(--text-muted);
+      background: #FFFFFF;
+      border: 1px dashed var(--border-card);
+      border-radius: var(--radius-lg);
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+
+    /* ==========================================================================
+       Item Card Component (SaaS Dashboard Card)
+       ========================================================================== */
+    .card {
+      background: var(--bg-card);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border-card);
+      border-left: 6px solid var(--border-card);
+      box-shadow: var(--shadow-card);
+      overflow: hidden;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+      position: relative;
+    }
+
+    .card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-hover);
+    }
+
+    /* Category Specific Left Border */
+    .card-type-event { border-left-color: var(--cat-event-accent); }
+    .card-type-assignment { border-left-color: var(--cat-assignment-accent); }
+    .card-type-exam { border-left-color: var(--cat-exam-accent); }
+    .card-type-workshop { border-left-color: var(--cat-workshop-accent); }
+    .card-type-venue-change { border-left-color: var(--cat-venue-accent); }
+    .card-type-registration { border-left-color: var(--cat-reg-accent); }
+
+    .card-urgent {
+      box-shadow: 0 4px 10px -1px rgba(220, 38, 38, 0.08);
+    }
+
+    .card-done {
+      border-left-color: var(--cat-completed-accent) !important;
+      background: #FAFAFA;
+      opacity: 0.78;
+    }
+
+    .card-done .card-title {
+      text-decoration: line-through;
+      color: var(--text-muted);
+    }
+
+    .banner {
+      margin: 0;
+      padding: 6px 16px;
+      background: linear-gradient(135deg, #DC2626 0%, #B91C1C 100%);
+      color: #FFFFFF;
+      font-size: 0.8rem;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .card-body {
+      padding: 16px 20px;
+    }
+
+    /* Category Badges (Soft & Colorful) */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      margin-bottom: 8px;
+      padding: 3px 11px;
+      border-radius: var(--radius-full);
+      font-size: 0.775rem;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+      border: 1px solid transparent;
+    }
+
+    .badge-event {
+      background: var(--cat-event-bg);
+      color: var(--cat-event-text);
+      border-color: var(--cat-event-border);
+    }
+
+    .badge-assignment {
+      background: var(--cat-assignment-bg);
+      color: var(--cat-assignment-text);
+      border-color: var(--cat-assignment-border);
+    }
+
+    .badge-exam {
+      background: var(--cat-exam-bg);
+      color: var(--cat-exam-text);
+      border-color: var(--cat-exam-border);
+    }
+
+    .badge-workshop {
+      background: var(--cat-workshop-bg);
+      color: var(--cat-workshop-text);
+      border-color: var(--cat-workshop-border);
+    }
+
+    .badge-venue-change {
+      background: var(--cat-venue-bg);
+      color: var(--cat-venue-text);
+      border-color: var(--cat-venue-border);
+    }
+
+    .badge-registration {
+      background: var(--cat-reg-bg);
+      color: var(--cat-reg-text);
+      border-color: var(--cat-reg-border);
+    }
+
+    .card-title {
+      margin: 0 0 8px;
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: var(--text-main);
+      line-height: 1.35;
+    }
+
+    .card-meta {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px 18px;
+      margin: 0 0 12px;
+      color: var(--text-muted);
+      font-size: 0.875rem;
+    }
+
+    .card-meta span {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .overdue {
+      color: var(--urgency-today);
+      font-weight: 800;
+      background: #FEF2F2;
+      padding: 2px 8px;
+      border-radius: var(--radius-full);
+      border: 1px solid #FECACA;
+      font-size: 0.75rem;
+    }
+
+    .card-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border-card);
+    }
+
+    .card-actions .btn {
+      min-height: 36px;
+      padding: 0 14px;
+      font-size: 0.825rem;
+    }
+
+    /* Completed Collapsible Section */
+    .completed {
+      margin: 12px 0 0;
+      border: 1px solid var(--border-card);
+      border-radius: var(--radius-lg);
+      background: #FFFFFF;
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .completed summary {
+      min-height: 48px;
+      padding: 12px 20px;
+      font-weight: 700;
+      font-size: 1.05rem;
+      cursor: pointer;
+      color: var(--text-main);
+      background: #FAFAFA;
+      display: flex;
+      align-items: center;
+      transition: background 0.15s ease;
+    }
+
+    .completed summary:hover {
+      background: #F1F5F9;
+    }
+
+    .completed .list {
+      padding: 16px;
+      background: #FFFFFF;
+    }
+
+    /* ==========================================================================
+       Modal Dialog Component
+       ========================================================================== */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 50;
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(15, 23, 42, 0.55);
+      backdrop-filter: blur(4px);
+      animation: fade-in 0.2s ease;
+    }
+
+    .modal-overlay[hidden] {
+      display: none;
+    }
+
+    .modal {
+      width: 100%;
+      max-width: 480px;
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 26px 28px;
+      background: #FFFFFF;
+      border-radius: 20px;
+      box-shadow: var(--shadow-modal);
+      border: 1px solid var(--border-card);
+    }
+
+    .modal h2 {
+      margin: 0 0 16px;
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: var(--text-main);
+      padding-bottom: 12px;
+      border-bottom: 1px solid #F1F5F9;
+    }
+
+    .modal label {
+      display: block;
+      margin: 12px 0 5px;
+      font-weight: 700;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+
+    .modal input,
+    .modal select {
+      width: 100%;
+      padding: 10px 14px;
+      font: inherit;
+      font-size: 0.925rem;
+      color: var(--text-main);
+      background: #F8FAFC;
+      border: 1px solid #CBD5E1;
+      border-radius: var(--radius-md);
+      transition: all 0.15s ease;
+    }
+
+    .modal input:focus,
+    .modal select:focus {
+      outline: none;
+      border-color: var(--royal-blue);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+      background: #FFFFFF;
+    }
+
+    .error {
+      min-height: 1.2em;
+      margin: 4px 0 0;
+      color: var(--urgency-today);
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+
+    .form-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 20px;
+      padding-top: 14px;
+      border-top: 1px solid #F1F5F9;
+    }
+
+    @keyframes fade-in {
+      from { opacity: 0; transform: scale(0.97); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    /* ==========================================================================
+       Responsive Breakpoints (Desktop, Tablet, Mobile)
+       ========================================================================== */
+    @media (max-width: 1023px) {
+      .sidebar {
+        position: fixed;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        transform: translateX(-100%);
+        z-index: 50;
+      }
+
+      body.sidebar-open .sidebar {
+        transform: translateX(0);
+      }
+
+      body.sidebar-open .sidebar-backdrop {
+        display: block;
+      }
+
+      .mobile-sidebar-toggle {
+        display: inline-flex;
+      }
+
+      .dashboard-topbar {
+        padding: 14px 20px;
+      }
+
+      .dashboard-main {
+        padding: 20px;
+      }
+
+      .kpi-grid {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      }
+    }
+
+    @media (max-width: 640px) {
+      .dashboard-topbar {
+        padding: 12px 16px;
+      }
+
+      .page-title {
+        font-size: 1.15rem;
+      }
+
+      .page-subtitle {
+        display: none;
+      }
+
+      .dashboard-main {
+        padding: 16px;
+      }
+
+      .paste-box-body {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .btn-autofill {
+        width: 100%;
+        height: 42px;
+      }
+
+      .card-actions {
+        flex-wrap: wrap;
+      }
+
+      .card-actions .btn {
+        flex: 1 1 auto;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="dashboard-layout">
+    <!-- Sidebar Backdrop for mobile -->
+    <div id="sidebar-backdrop" class="sidebar-backdrop"></div>
+
+    <!-- Left Sidebar Navigation -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-brand">
+        <div class="brand-logo-icon" aria-hidden="true">🎓</div>
+        <div class="brand-info">
+          <h1 class="brand-title">Campus 360</h1>
+          <span class="brand-badge">Student Portal</span>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav" aria-label="Main navigation">
+        <div class="nav-section-label">Overview</div>
+        <button type="button" class="sidebar-nav-item active" data-filter="All">
+          <span class="nav-icon" aria-hidden="true">📊</span>
+          <span class="nav-text">All Tasks</span>
+          <span class="nav-pill" id="side-count-all">0</span>
+        </button>
+
+        <div class="nav-section-label">Categories</div>
+        <button type="button" class="sidebar-nav-item nav-assignments" data-filter="Assignment">
+          <span class="nav-icon" aria-hidden="true">📝</span>
+          <span class="nav-text">Assignments</span>
+          <span class="nav-pill pill-purple" id="side-count-assignments">0</span>
+        </button>
+        <button type="button" class="sidebar-nav-item nav-exams" data-filter="Exam">
+          <span class="nav-icon" aria-hidden="true">📖</span>
+          <span class="nav-text">Examinations</span>
+          <span class="nav-pill pill-orange" id="side-count-exams">0</span>
+        </button>
+        <button type="button" class="sidebar-nav-item nav-events" data-filter="Event">
+          <span class="nav-icon" aria-hidden="true">🎉</span>
+          <span class="nav-text">Events</span>
+          <span class="nav-pill pill-blue" id="side-count-events">0</span>
+        </button>
+        <button type="button" class="sidebar-nav-item nav-workshops" data-filter="Workshop">
+          <span class="nav-icon" aria-hidden="true">🛠️</span>
+          <span class="nav-text">Workshops</span>
+          <span class="nav-pill pill-teal" id="side-count-workshops">0</span>
+        </button>
+        <button type="button" class="sidebar-nav-item nav-venues" data-filter="Venue Change">
+          <span class="nav-icon" aria-hidden="true">⚠️</span>
+          <span class="nav-text">Venue Changes</span>
+          <span class="nav-pill pill-amber" id="side-count-venues">0</span>
+        </button>
+        <button type="button" class="sidebar-nav-item nav-regs" data-filter="Registration">
+          <span class="nav-icon" aria-hidden="true">📋</span>
+          <span class="nav-text">Registrations</span>
+          <span class="nav-pill pill-pink" id="side-count-regs">0</span>
+        </button>
+
+        <div class="nav-section-label">AI &amp; Tools</div>
+        <a href="chat.html" class="sidebar-nav-item nav-ai">
+          <span class="nav-icon" aria-hidden="true">🤖</span>
+          <span class="nav-text">AI Study Assistant</span>
+          <span class="nav-badge-new">PRO</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="user-mini-card">
+          <div class="user-avatar" aria-hidden="true">🎓</div>
+          <div class="user-meta">
+            <span class="user-name">College Student</span>
+            <span class="user-status"><span class="status-dot-active"></span> Active Semester</span>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <div class="main-wrapper">
+      <!-- Topbar Header -->
+      <header class="dashboard-topbar">
+        <div class="topbar-left">
+          <button type="button" id="sidebar-toggle-btn" class="mobile-sidebar-toggle" aria-label="Toggle sidebar menu">
+            ☰
+          </button>
+          <div>
+            <h2 class="page-title">Campus Tracker</h2>
+            <p class="page-subtitle" id="topbar-date-display">Today's Schedule &amp; Deadlines</p>
+          </div>
+        </div>
+
+        <div class="topbar-actions">
+          <a href="chat.html" class="btn btn-ai-header" aria-label="Open AI Study Assistant">
+            <span aria-hidden="true">🤖</span> AI Study Chat
+          </a>
+          <button type="button" id="new-btn" class="btn btn-primary">
+            <span aria-hidden="true">+</span> New Task
+          </button>
+        </div>
+      </header>
+
+      <!-- Dashboard Main Body -->
+      <main class="dashboard-main">
+        <!-- Visual KPI Stat Cards Grid -->
+        <section class="kpi-grid" aria-label="Visual Statistics">
+          <div class="kpi-card kpi-urgent" data-filter-target="today" title="View Today & Overdue tasks">
+            <div class="kpi-icon-wrap icon-urgent" aria-hidden="true">⏰</div>
+            <div class="kpi-content">
+              <span class="kpi-label">Due Today</span>
+              <span class="kpi-value" id="kpi-today-count">0</span>
+            </div>
+          </div>
+
+          <div class="kpi-card kpi-purple" data-filter-target="Assignment" title="Filter Assignments">
+            <div class="kpi-icon-wrap icon-purple" aria-hidden="true">📝</div>
+            <div class="kpi-content">
+              <span class="kpi-label">Assignments</span>
+              <span class="kpi-value" id="kpi-assignments-count">0</span>
+            </div>
+          </div>
+
+          <div class="kpi-card kpi-orange" data-filter-target="Exam" title="Filter Examinations">
+            <div class="kpi-icon-wrap icon-orange" aria-hidden="true">📖</div>
+            <div class="kpi-content">
+              <span class="kpi-label">Examinations</span>
+              <span class="kpi-value" id="kpi-exams-count">0</span>
+            </div>
+          </div>
+
+          <div class="kpi-card kpi-teal" data-filter-target="Workshop" title="Filter Workshops">
+            <div class="kpi-icon-wrap icon-teal" aria-hidden="true">🛠️</div>
+            <div class="kpi-content">
+              <span class="kpi-label">Workshops</span>
+              <span class="kpi-value" id="kpi-workshops-count">0</span>
+            </div>
+          </div>
+
+          <div class="kpi-card kpi-green" data-filter-target="completed" title="View Completed Tasks">
+            <div class="kpi-icon-wrap icon-green" aria-hidden="true">✅</div>
+            <div class="kpi-content">
+              <span class="kpi-label">Completed</span>
+              <span class="kpi-value" id="kpi-completed-count">0</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- Smart WhatsApp Paste Box -->
+        <section class="paste-box-card" aria-label="Paste a message">
+          <div class="paste-box-header">
+            <label for="paste-input" class="paste-title-label">
+              <span>⚡</span> Smart Auto-Fill from WhatsApp or Notice Message
+            </label>
+          </div>
+          <div class="paste-box-body">
+            <textarea id="paste-input" rows="2" placeholder="Paste WhatsApp message here... (e.g. 'Kal 10am Room 204 mein DBMS assignment submit karna hai')"></textarea>
+            <button type="button" id="autofill-btn" class="btn btn-primary btn-autofill">Auto-fill</button>
+          </div>
+        </section>
+
+        <!-- Category Filter Chips -->
+        <section class="filters-row-wrap" aria-label="Filter by type">
+          <nav id="filters" class="filters" aria-label="Filter by type"></nav>
+        </section>
+
+        <!-- Summary Status Line -->
+        <div class="summary-card">
+          <span class="summary-icon" aria-hidden="true">📌</span>
+          <p id="summary" class="summary" aria-live="polite">Loading schedule...</p>
+        </div>
+
+        <!-- Sections: Today, This Week, Upcoming, Completed -->
+        <div class="sections-container">
+          <!-- Today Group -->
+          <section class="group group-today" aria-labelledby="h-today">
+            <div class="section-heading-bar">
+              <div class="section-title-wrap">
+                <span class="section-dot dot-today" aria-hidden="true"></span>
+                <h2 id="h-today">Today &amp; Overdue</h2>
+              </div>
+              <span class="section-count-pill pill-today" id="badge-count-today">0</span>
+            </div>
+            <div id="list-today" class="list"></div>
+          </section>
+
+          <!-- This Week Group -->
+          <section class="group group-week" aria-labelledby="h-week">
+            <div class="section-heading-bar">
+              <div class="section-title-wrap">
+                <span class="section-dot dot-week" aria-hidden="true"></span>
+                <h2 id="h-week">This Week</h2>
+              </div>
+              <span class="section-count-pill pill-week" id="badge-count-week">0</span>
+            </div>
+            <div id="list-week" class="list"></div>
+          </section>
+
+          <!-- Upcoming Group -->
+          <section class="group group-later" aria-labelledby="h-later">
+            <div class="section-heading-bar">
+              <div class="section-title-wrap">
+                <span class="section-dot dot-later" aria-hidden="true"></span>
+                <h2 id="h-later">Upcoming</h2>
+              </div>
+              <span class="section-count-pill pill-later" id="badge-count-later">0</span>
+            </div>
+            <div id="list-later" class="list"></div>
+          </section>
+
+          <!-- Completed Section -->
+          <details class="completed" id="completed-details">
+            <summary id="completed-summary">Completed (0)</summary>
+            <div id="list-completed" class="list"></div>
+          </details>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Add / Edit Modal Window -->
+  <div id="modal" class="modal-overlay" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <h2 id="modal-title">New item</h2>
+      <form id="item-form" novalidate>
+        <label for="f-title">Title</label>
+        <input id="f-title" type="text" maxlength="100" placeholder="e.g. DBMS Assignment Submission" required>
+        <p class="error" id="err-title"></p>
+
+        <label for="f-type">Type</label>
+        <select id="f-type" required></select>
+
+        <label for="f-date">Date</label>
+        <input id="f-date" type="date" required>
+        <p class="error" id="err-date"></p>
+
+        <label for="f-time">Time (optional)</label>
+        <input id="f-time" type="time">
+
+        <label for="f-venue">Venue (optional)</label>
+        <input id="f-venue" type="text" maxlength="60" placeholder="e.g. Room 204 or Online">
+
+        <div class="form-actions">
+          <button type="button" id="cancel-btn" class="btn btn-ghost">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Task</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    "use strict";
+
+    /* ==========================================================================
+       1. Constants and Global State
+       ========================================================================== */
+    const STORAGE_KEY = "campusTrackerItems";
+    const TYPES = ["Assignment", "Exam", "Event", "Workshop", "Venue Change", "Registration"];
+    const TYPE_ICONS = {
+      "Assignment": "📝", 
+      "Exam": "📖", 
+      "Event": "🎉",
+      "Workshop": "🛠️", 
+      "Venue Change": "⚠️", 
+      "Registration": "📋"
+    };
+    const MONTHS = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
+    const WEEKDAYS = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
+
+    let items = [];
+    let activeFilter = "All";
+    let editingId = null;
+    let lastFocusedElement = null;
+
+    /* ==========================================================================
+       2. DOM Creation Helpers
+       ========================================================================== */
+
+    // Creates an element with an optional class and text (text is set safely via textContent).
+    function createElement(tag, className, text) {
+      const node = document.createElement(tag);
+      if (className) node.className = className;
+      if (text !== undefined) node.textContent = text;
+      return node;
+    }
+
+    // Creates a button with a label, a CSS class and a click handler.
+    function createButton(label, className, onClick) {
+      const button = createElement("button", "btn " + className, label);
+      button.type = "button";
+      button.addEventListener("click", onClick);
+      return button;
+    }
+
+    /* ==========================================================================
+       3. Date and Time Helpers
+       ========================================================================== */
+
+    // Returns today's date at midnight (local time).
+    function startOfToday() {
+      const now = new Date();
+      return new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    }
+
+    // Returns a new date that is `days` days after `date`.
+    function addDays(date, days) {
+      return new Date(date.getFullYear(), date.getMonth(), date.getDate() + days);
+    }
+
+    // Pads a number to two digits, e.g. 5 -> "05".
+    function pad(number) {
+      return String(number).padStart(2, "0");
+    }
+
+    // Converts a Date to "YYYY-MM-DD".
+    function toDateString(date) {
+      return date.getFullYear() + "-" + pad(date.getMonth() + 1) + "-" + pad(date.getDate());
+    }
+
+    // Converts "YYYY-MM-DD" to a local Date.
+    function fromDateString(text) {
+      const parts = text.split("-").map(Number);
+      return new Date(parts[0], parts[1] - 1, parts[2]);
+    }
+
+    // Returns how many days from today a date string is (negative = past).
+    function daysFromToday(text) {
+      return Math.round((fromDateString(text) - startOfToday()) / 86400000);
+    }
+
+    // Turns a date string into "Today", "Tomorrow", "Yesterday" or "Fri, 14 Nov".
+    function formatDate(text) {
+      const diff = daysFromToday(text);
+      if (diff === 0) return "Today";
+      if (diff === 1) return "Tomorrow";
+      if (diff === -1) return "Yesterday";
+      const date = fromDateString(text);
+      const options = { weekday: "short", day: "numeric", month: "short" };
+      if (date.getFullYear() !== startOfToday().getFullYear()) options.year = "numeric";
+      return date.toLocaleDateString("en-IN", options);
+    }
+
+    // Turns "14:30" into "2:30 PM".
+    function formatTime(text) {
+      if (!text) return "";
+      const parts = text.split(":").map(Number);
+      const suffix = parts[0] >= 12 ? "PM" : "AM";
+      const hour12 = parts[0] % 12 || 12;
+      return hour12 + ":" + pad(parts[1]) + " " + suffix;
+    }
+
+    /* ==========================================================================
+       4. LocalStorage Persistence & Sample Seeding
+       ========================================================================== */
+
+    // Generates a reasonably unique id for a new item.
+    function generateId() {
+      return String(Date.now()) + Math.floor(Math.random() * 1000);
+    }
+
+    // Reads items from localStorage. Returns null if nothing is stored yet.
+    function loadItems() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw === null) return null;
+        const parsed = JSON.parse(raw);
+        return Array.isArray(parsed) ? parsed : null;
+      } catch (error) {
+        return null;
+      }
+    }
+
+    // Writes the current items to localStorage.
+    function saveItems() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+      } catch (error) {
+        console.warn("Could not save items:", error);
+      }
+    }
+
+    // Builds sample items with dates relative to today (overdue, today, tomorrow, this week, later).
+    function createSampleItems() {
+      const today = startOfToday();
+      function make(offset, title, type, time, venue) {
+        return {
+          id: generateId() + offset, 
+          title: title, 
+          type: type,
+          date: toDateString(addDays(today, offset)), 
+          time: time, 
+          venue: venue, 
+          done: false
+        };
+      }
+      return [
+        make(-2, "Physics lab record submission", "Assignment", "17:00", "Lab 2"),
+        make(0, "DBMS assignment submission", "Assignment", "17:00", "Room 204"),
+        make(1, "Python internal exam", "Exam", "10:00", "Lab 3"),
+        make(2, "Maths test shifted to Block B", "Venue Change", "09:30", "Block B"),
+        make(4, "Web development workshop", "Workshop", "14:00", "Seminar Hall"),
+        make(10, "Hackathon registration closes", "Registration", "23:59", ""),
+        make(20, "Annual tech fest", "Event", "11:00", "Auditorium")
+      ];
+    }
+
+    /* ==========================================================================
+       5. Sorting and Grouping
+       ========================================================================== */
+
+    // Sorts by date, then by time (items without a time go last).
+    function compareItems(a, b) {
+      if (a.date !== b.date) return a.date < b.date ? -1 : 1;
+      const timeA = a.time || "99:99";
+      const timeB = b.time || "99:99";
+      return timeA < timeB ? -1 : timeA > timeB ? 1 : 0;
+    }
+
+    // Returns "today" (includes overdue), "week" (next 7 days) or "later".
+    function getSection(item) {
+      const diff = daysFromToday(item.date);
+      if (diff <= 0) return "today";
+      if (diff <= 7) return "week";
+      return "later";
+    }
+
+    /* ==========================================================================
+       6. Rendering Cards & UI Components
+       ========================================================================== */
+
+    // Builds one item card with modern category styling.
+    function createCard(item) {
+      const diff = daysFromToday(item.date);
+      let urgency = "later";
+      if (item.done) urgency = "done";
+      else if (diff <= 0) urgency = "urgent";
+      else if (diff <= 7) urgency = "soon";
+
+      const typeSlug = item.type.toLowerCase().replace(/\s+/g, "-");
+      const card = createElement("article", "card card-" + urgency + " card-type-" + typeSlug);
+      card.setAttribute("data-type", item.type);
+
+      if (item.type === "Venue Change") {
+        card.appendChild(createElement("p", "banner", "⚠️ Venue changed. Check the new location."));
+      }
+
+      const body = createElement("div", "card-body");
+      const badgeClass = "badge badge-" + typeSlug;
+      body.appendChild(createElement("span", badgeClass, TYPE_ICONS[item.type] + " " + item.type));
+      body.appendChild(createElement("h3", "card-title", item.title));
+
+      const meta = createElement("p", "card-meta");
+      const when = formatDate(item.date) + (item.time ? ", " + formatTime(item.time) : "");
+      meta.appendChild(createElement("span", "", "📅 " + when));
+      if (item.venue) meta.appendChild(createElement("span", "", "📍 " + item.venue));
+      if (!item.done && diff < 0) meta.appendChild(createElement("span", "overdue", "Overdue"));
+      body.appendChild(meta);
+
+      const actions = createElement("div", "card-actions");
+      const doneBtnClass = item.done ? "btn-ghost" : "btn-done-action";
+      actions.appendChild(createButton(item.done ? "↩ Undo" : "✓ Done", doneBtnClass, function () { toggleDone(item.id); }));
+      actions.appendChild(createButton("✏️ Edit", "btn-ghost", function () { openModal(item, item.id); }));
+      actions.appendChild(createButton("🗑️ Delete", "btn-danger", function () { deleteItem(item.id); }));
+      body.appendChild(actions);
+
+      card.appendChild(body);
+      return card;
+    }
+
+    // Fills a list container with cards, or an empty message.
+    function renderList(container, list, emptyText) {
+      container.replaceChildren();
+      if (list.length === 0) {
+        container.appendChild(createElement("p", "empty", emptyText));
+        return;
+      }
+      list.forEach(function (item) { container.appendChild(createCard(item)); });
+    }
+
+    // Builds the filter chips and highlights the active one.
+    function renderFilters() {
+      const nav = document.getElementById("filters");
+      nav.replaceChildren();
+      ["All"].concat(TYPES).forEach(function (name) {
+        const chip = createElement("button", "chip" + (name === activeFilter ? " active" : ""), name);
+        chip.type = "button";
+        chip.setAttribute("aria-pressed", String(name === activeFilter));
+        chip.addEventListener("click", function () { 
+          activeFilter = name; 
+          render(); 
+        });
+        nav.appendChild(chip);
+      });
+    }
+
+    // Shows how many tasks are pending today (including overdue), ignoring the filter.
+    function renderSummary() {
+      const count = items.filter(function (item) { return !item.done && getSection(item) === "today"; }).length;
+      const text = count === 0 ? "Nothing pending today 🎉" : count + (count === 1 ? " task" : " tasks") + " pending today";
+      document.getElementById("summary").textContent = text;
+    }
+
+    // Updates KPI Stat Cards & Sidebar Count Badges
+    function updateDashboardKPIs() {
+      const pendingItems = items.filter(i => !i.done);
+      const completedItems = items.filter(i => i.done);
+
+      const todayPending = pendingItems.filter(i => getSection(i) === "today").length;
+      const assignmentsCount = items.filter(i => i.type === "Assignment" && !i.done).length;
+      const examsCount = items.filter(i => i.type === "Exam" && !i.done).length;
+      const workshopsCount = items.filter(i => i.type === "Workshop" && !i.done).length;
+      const eventsCount = items.filter(i => i.type === "Event" && !i.done).length;
+      const venuesCount = items.filter(i => i.type === "Venue Change" && !i.done).length;
+      const regsCount = items.filter(i => i.type === "Registration" && !i.done).length;
+      const completedCount = completedItems.length;
+
+      // Update KPI Top Cards
+      const elKpiToday = document.getElementById("kpi-today-count");
+      const elKpiAssignments = document.getElementById("kpi-assignments-count");
+      const elKpiExams = document.getElementById("kpi-exams-count");
+      const elKpiWorkshops = document.getElementById("kpi-workshops-count");
+      const elKpiCompleted = document.getElementById("kpi-completed-count");
+
+      if (elKpiToday) elKpiToday.textContent = String(todayPending);
+      if (elKpiAssignments) elKpiAssignments.textContent = String(assignmentsCount);
+      if (elKpiExams) elKpiExams.textContent = String(examsCount);
+      if (elKpiWorkshops) elKpiWorkshops.textContent = String(workshopsCount);
+      if (elKpiCompleted) elKpiCompleted.textContent = String(completedCount);
+
+      // Update Sidebar Nav Pills
+      const elSideAll = document.getElementById("side-count-all");
+      const elSideAssignments = document.getElementById("side-count-assignments");
+      const elSideExams = document.getElementById("side-count-exams");
+      const elSideEvents = document.getElementById("side-count-events");
+      const elSideWorkshops = document.getElementById("side-count-workshops");
+      const elSideVenues = document.getElementById("side-count-venues");
+      const elSideRegs = document.getElementById("side-count-regs");
+
+      if (elSideAll) elSideAll.textContent = String(items.length);
+      if (elSideAssignments) elSideAssignments.textContent = String(assignmentsCount);
+      if (elSideExams) elSideExams.textContent = String(examsCount);
+      if (elSideEvents) elSideEvents.textContent = String(eventsCount);
+      if (elSideWorkshops) elSideWorkshops.textContent = String(workshopsCount);
+      if (elSideVenues) elSideVenues.textContent = String(venuesCount);
+      if (elSideRegs) elSideRegs.textContent = String(regsCount);
+
+      // Update Sidebar active item class
+      document.querySelectorAll(".sidebar-nav-item[data-filter]").forEach(btn => {
+        const filterVal = btn.getAttribute("data-filter");
+        if (filterVal === activeFilter) {
+          btn.classList.add("active");
+        } else {
+          btn.classList.remove("active");
+        }
+      });
+    }
+
+    // Redraws the whole screen from the current items and filter.
+    function render() {
+      const visible = items
+        .filter(function (item) { return activeFilter === "All" || item.type === activeFilter; })
+        .sort(compareItems);
+      const pending = visible.filter(function (item) { return !item.done; });
+      const completed = visible.filter(function (item) { return item.done; });
+      const empty = "Nothing pending 🎉";
+
+      renderFilters();
+      renderSummary();
+
+      const todayList = pending.filter(function (i) { return getSection(i) === "today"; });
+      const weekList = pending.filter(function (i) { return getSection(i) === "week"; });
+      const laterList = pending.filter(function (i) { return getSection(i) === "later"; });
+
+      renderList(document.getElementById("list-today"), todayList, empty);
+      renderList(document.getElementById("list-week"), weekList, empty);
+      renderList(document.getElementById("list-later"), laterList, empty);
+      renderList(document.getElementById("list-completed"), completed, "Nothing completed yet");
+
+      // Update Section Header Badges
+      const elBadgeToday = document.getElementById("badge-count-today");
+      const elBadgeWeek = document.getElementById("badge-count-week");
+      const elBadgeLater = document.getElementById("badge-count-later");
+      if (elBadgeToday) elBadgeToday.textContent = String(todayList.length);
+      if (elBadgeWeek) elBadgeWeek.textContent = String(weekList.length);
+      if (elBadgeLater) elBadgeLater.textContent = String(laterList.length);
+
+      document.getElementById("completed-summary").textContent = "Completed (" + completed.length + ")";
+
+      // Update KPI Statistics
+      updateDashboardKPIs();
+    }
+
+    /* ==========================================================================
+       7. Item Actions (Toggle Done, Delete)
+       ========================================================================== */
+
+    // Marks an item done or not done.
+    function toggleDone(id) {
+      const item = items.find(function (entry) { return entry.id === id; });
+      if (!item) return;
+      item.done = !item.done;
+      saveItems();
+      render();
+    }
+
+    // Deletes an item after the user confirms.
+    function deleteItem(id) {
+      if (!window.confirm("Are you sure you want to delete this task?")) return;
+      items = items.filter(function (entry) { return entry.id !== id; });
+      saveItems();
+      render();
+    }
+
+    /* ==========================================================================
+       8. Modal and Form Operations
+       ========================================================================== */
+
+    // Opens the modal. `values` pre-fills the fields; `id` is set when editing.
+    function openModal(values, id) {
+      const data = values || {};
+      editingId = id || null;
+      lastFocusedElement = document.activeElement;
+      document.getElementById("modal-title").textContent = editingId ? "Edit Task" : "New Task";
+      document.getElementById("f-title").value = data.title || "";
+      document.getElementById("f-type").value = data.type || "Assignment";
+      document.getElementById("f-date").value = data.date || toDateString(startOfToday());
+      document.getElementById("f-time").value = data.time || "";
+      document.getElementById("f-venue").value = data.venue || "";
+      document.getElementById("err-title").textContent = "";
+      document.getElementById("err-date").textContent = "";
+      document.getElementById("modal").hidden = false;
+      document.getElementById("f-title").focus();
+    }
+
+    // Closes the modal and returns focus to where the user was.
+    function closeModal() {
+      document.getElementById("modal").hidden = true;
+      editingId = null;
+      if (lastFocusedElement) lastFocusedElement.focus();
+    }
+
+    // Checks required fields and shows error messages. Returns true if valid.
+    function validateForm() {
+      const title = document.getElementById("f-title").value.trim();
+      const date = document.getElementById("f-date").value;
+      document.getElementById("err-title").textContent = title ? "" : "Please enter a title.";
+      document.getElementById("err-date").textContent = date ? "" : "Please pick a date.";
+      return Boolean(title && date);
+    }
+
+    // Saves the form as a new item or as changes to the item being edited.
+    function handleFormSubmit(event) {
+      event.preventDefault();
+      if (!validateForm()) return;
+      const values = {
+        title: document.getElementById("f-title").value.trim(),
+        type: document.getElementById("f-type").value,
+        date: document.getElementById("f-date").value,
+        time: document.getElementById("f-time").value,
+        venue: document.getElementById("f-venue").value.trim()
+      };
+      if (editingId) {
+        const item = items.find(function (entry) { return entry.id === editingId; });
+        if (item) Object.assign(item, values);
+      } else {
+        items.push(Object.assign({ id: generateId(), done: false }, values));
+      }
+      saveItems();
+      closeModal();
+      render();
+    }
+
+    /* ==========================================================================
+       9. Paste Message Parser
+       ========================================================================== */
+
+    // Makes a date from day, month index and optional year. Past dates without a year roll to next year.
+    function buildDate(day, monthIndex, year) {
+      const today = startOfToday();
+      const fullYear = year === null ? today.getFullYear() : (year < 100 ? 2000 + year : year);
+      let date = new Date(fullYear, monthIndex, day);
+      if (date.getMonth() !== monthIndex || date.getDate() !== day) return null;
+      if (year === null && date < today) date = new Date(fullYear + 1, monthIndex, day);
+      return date;
+    }
+
+    function extractDate(text) {
+      const today = startOfToday();
+      let match = text.match(/\b(\d{1,2})(?:st|nd|rd|th)?\s+(?:of\s+)?(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\b(?:,?\s+(\d{4}))?/i);
+      if (match) {
+        const date = buildDate(Number(match[1]), MONTHS.indexOf(match[2].toLowerCase()), match[3] ? Number(match[3]) : null);
+        if (date) return { value: toDateString(date), matched: match[0] };
+      }
+
+      match = text.match(/\b(\d{1,2})[\/-](\d{1,2})(?:[\/-](\d{2,4}))?\b/);
+      if (match) {
+        const date = buildDate(Number(match[1]), Number(match[2]) - 1, match[3] ? Number(match[3]) : null);
+        if (date) return { value: toDateString(date), matched: match[0] };
+      }
+
+      const relativeWords = [
+        { pattern: /\bday after tomorrow\b|\bparso\b/i, days: 2 },
+        { pattern: /\btomorrow\b|\bkal\b/i, days: 1 },
+        { pattern: /\btoday\b|\baaj\b/i, days: 0 }
+      ];
+      for (let i = 0; i < relativeWords.length; i++) {
+        match = text.match(relativeWords[i].pattern);
+        if (match) return { value: toDateString(addDays(today, relativeWords[i].days)), matched: match[0] };
+      }
+
+      match = text.match(/\b(?:next\s+)?(sunday|monday|tuesday|wednesday|thursday|friday|saturday)\b/i);
+      if (match) {
+        const target = WEEKDAYS.indexOf(match[1].toLowerCase());
+        let gap = (target - today.getDay() + 7) % 7;
+        if (gap === 0) gap = 7;
+        return { value: toDateString(addDays(today, gap)), matched: match[0] };
+      }
+      return null;
+    }
+
+    function extractTime(text) {
+      let match = text.match(/\b(\d{1,2})(?::(\d{2}))?\s*(am|pm)\b/i);
+      if (match) {
+        let hour = Number(match[1]);
+        const minute = match[2] ? Number(match[2]) : 0;
+        if (hour >= 1 && hour <= 12 && minute < 60) {
+          const isPm = match[3].toLowerCase() === "pm";
+          if (isPm && hour < 12) hour += 12;
+          if (!isPm && hour === 12) hour = 0;
+          return { value: pad(hour) + ":" + pad(minute), matched: match[0] };
+        }
+      }
+      match = text.match(/\b([01]?\d|2[0-3]):([0-5]\d)\b/);
+      if (match) return { value: pad(Number(match[1])) + ":" + match[2], matched: match[0] };
+      return null;
+    }
+
+    function toTitleCase(text) {
+      return text.toLowerCase().replace(/\b[a-z]/g, function (letter) { return letter.toUpperCase(); });
+    }
+
+    function extractVenue(text) {
+      const patterns = [
+        /\bseminar hall\b/i, /\bauditorium\b/i, /\bconference hall\b/i, /\blibrary\b/i,
+        /\b(?:room|lab|classroom|hall)\s*(?:no\.?\s*)?\d+[a-z]?\b/i,
+        /\bblock\s+[a-z0-9]+\b/i
+      ];
+      for (let i = 0; i < patterns.length; i++) {
+        const match = text.match(patterns[i]);
+        if (match) return { value: toTitleCase(match[0]), matched: match[0] };
+      }
+      return null;
+    }
+
+    function detectType(text) {
+      const lower = text.toLowerCase();
+      if (/venue|shifted|changed|moved/.test(lower)) return "Venue Change";
+      if (/registration|register|last date/.test(lower)) return "Registration";
+      if (/\bexam|\btest\b|\bpaper\b/.test(lower)) return "Exam";
+      if (/workshop/.test(lower)) return "Workshop";
+      if (/assignment|submit|submission/.test(lower)) return "Assignment";
+      return "Event";
+    }
+
+    function cleanTitle(line) {
+      return line
+        .replace(/\s+/g, " ")
+        .replace(/^(?:at|on|in|by|for|mein|ko)\s+/i, "")
+        .replace(/^[\s,.:;\-–]+|[\s,.:;\-–]+$/g, "")
+        .slice(0, 60);
+    }
+
+    function buildTitle(remainingText, originalText) {
+      const lines = remainingText.split("\n").map(cleanTitle).filter(Boolean);
+      if (lines.length > 0) return lines[0];
+      return cleanTitle(originalText.split("\n")[0]);
+    }
+
+    function parseMessage(text) {
+      const date = extractDate(text);
+      const time = extractTime(text);
+      const venue = extractVenue(text);
+      let remaining = text;
+      [date, time, venue].forEach(function (found) {
+        if (found) remaining = remaining.replace(found.matched, " ");
+      });
+      return {
+        title: buildTitle(remaining, text),
+        type: detectType(text),
+        date: date ? date.value : "",
+        time: time ? time.value : "",
+        venue: venue ? venue.value : ""
+      };
+    }
+
+    function handleAutofill() {
+      const input = document.getElementById("paste-input");
+      const text = input.value.trim();
+      if (!text) { input.focus(); return; }
+      openModal(parseMessage(text), null);
+      input.value = "";
+    }
+
+    /* ==========================================================================
+       10. Setup & Event Binding
+       ========================================================================== */
+
+    function fillTypeSelect() {
+      const select = document.getElementById("f-type");
+      TYPES.forEach(function (type) {
+        const option = createElement("option", "", type);
+        option.value = type;
+        select.appendChild(option);
+      });
+    }
+
+    function bindEvents() {
+      // "+ New" modal button
+      document.getElementById("new-btn").addEventListener("click", function () { openModal(null, null); });
+      
+      // Auto-fill button
+      document.getElementById("autofill-btn").addEventListener("click", handleAutofill);
+      
+      // Form submission & cancel
+      document.getElementById("item-form").addEventListener("submit", handleFormSubmit);
+      document.getElementById("cancel-btn").addEventListener("click", closeModal);
+      
+      // Modal click outside to close
+      document.getElementById("modal").addEventListener("click", function (event) {
+        if (event.target === event.currentTarget) closeModal();
+      });
+      
+      // Escape key to close modal
+      document.addEventListener("keydown", function (event) {
+        if (event.key === "Escape" && !document.getElementById("modal").hidden) closeModal();
+      });
+
+      // Sidebar navigation links click
+      document.querySelectorAll(".sidebar-nav-item[data-filter]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          activeFilter = btn.getAttribute("data-filter");
+          render();
+          // Close mobile sidebar on selection
+          document.body.classList.remove("sidebar-open");
+        });
+      });
+
+      // KPI Card Clicks to filter or scroll
+      document.querySelectorAll(".kpi-card[data-filter-target]").forEach(card => {
+        card.addEventListener("click", () => {
+          const target = card.getAttribute("data-filter-target");
+          if (target === "today") {
+            activeFilter = "All";
+            render();
+            document.getElementById("h-today").scrollIntoView({ behavior: "smooth" });
+          } else if (target === "completed") {
+            const compDetails = document.getElementById("completed-details");
+            if (compDetails) compDetails.open = true;
+            document.getElementById("completed-summary").scrollIntoView({ behavior: "smooth" });
+          } else {
+            activeFilter = target;
+            render();
+          }
+        });
+      });
+
+      // Mobile Hamburger Toggle & Backdrop
+      const toggleBtn = document.getElementById("sidebar-toggle-btn");
+      const backdrop = document.getElementById("sidebar-backdrop");
+      if (toggleBtn) {
+        toggleBtn.addEventListener("click", () => {
+          document.body.classList.toggle("sidebar-open");
+        });
+      }
+      if (backdrop) {
+        backdrop.addEventListener("click", () => {
+          document.body.classList.remove("sidebar-open");
+        });
+      }
+
+      // Display formatted current date in topbar
+      const dateDisplay = document.getElementById("topbar-date-display");
+      if (dateDisplay) {
+        const today = new Date();
+        const options = { weekday: 'long', month: 'short', day: 'numeric', year: 'numeric' };
+        dateDisplay.textContent = "Schedule & Deadlines • " + today.toLocaleDateString("en-US", options);
+      }
+    }
+
+    function init() {
+      const stored = loadItems();
+      if (stored === null) {
+        items = createSampleItems();
+        saveItems();
+      } else {
+        items = stored;
+      }
+      fillTypeSelect();
+      bindEvents();
+      render();
+    }
+
+    init();
+  </script>
+</body>
+
+</html>
